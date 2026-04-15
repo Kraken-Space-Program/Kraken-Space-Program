@@ -21,6 +21,8 @@ bevy = { version = "0.18.1", default-features = false, features = [
 
 bevy_rapier3d = { version = "0.33.0", features = ["default"] }
 
+mlua = { version = "0.9", features = ["lua54", "send", "macros"] }
+
 [profile.dev]
 opt-level = 1
 

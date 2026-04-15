@@ -108,6 +108,9 @@ pub fn sync_render_transforms(
         // This keeps the value being cast small, preserving precision.
         let relative = sim_pos.0 - local_origin.0;
 
+        // Debug assertion to ensure relative position is reasonable
+        debug_assert!(relative.length() < 1e6, "Relative position too large, LocalOrigin may need updating");
+
         // Step 2: THIS IS THE ONLY .as_vec3() IN THE ENTIRE CODEBASE.
         // All other f64→f32 position casts are forbidden. If you are adding
         // one elsewhere, you are breaking the coordinate-system contract.
@@ -142,8 +145,7 @@ pub fn interpolate_render_transforms(
     mut query: Query<(&mut Transform, &RenderInterpolation)>,
 ) {
     let alpha = ((time.elapsed_seconds_f64() % physics::FIXED_TIMESTEP)
-        / physics::FIXED_TIMESTEP)
-        .clamp(0.0, 1.0) as f32;
+        / physics::FIXED_TIMESTEP) as f32;
 
     for (mut transform, interp) in &mut query {
         if interp.initialized {

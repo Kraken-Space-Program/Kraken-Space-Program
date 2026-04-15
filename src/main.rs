@@ -4,6 +4,7 @@ use bevy_rapier3d::prelude::*;
 
 mod physics;
 mod rendering;
+mod sdk;
 
 // SimPosition and SyncRender are defined in render_sync but unused until Phase 1
 // (no entities carry SimPosition + SyncRender yet). Import only what's needed.
