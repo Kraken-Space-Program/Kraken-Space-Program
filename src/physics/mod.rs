@@ -22,6 +22,9 @@
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
+/// Fixed physics timestep duration, shared across main and render interpolation.
+pub const FIXED_TIMESTEP: f64 = 1.0 / 50.0;
+
 pub struct PhysicsPlugin;
 
 impl Plugin for PhysicsPlugin {
