@@ -114,6 +114,8 @@ fn setup(
         Transform::from_xyz(0.0, 50.0, 0.0),
         DebugBall,
         RenderInterpolation::default(),
+    ));
+
     eprintln!("Phase 0 scene spawned — ball at Y = 50.0 m");
 }
 
@@ -141,7 +143,7 @@ fn main() {
         // Fixed timestep: 50 Hz as specified in design.md.
         // "Fixed tick rate: 50 Hz (0.02s). Never dynamic per-frame."
         .insert_resource(TimestepMode::Fixed {
-            dt: physics::FIXED_TIMESTEP,
+            dt: physics::FIXED_TIMESTEP as f32,
             substeps: 1,
         })
         .add_systems(Startup, setup)

@@ -13,7 +13,6 @@ bevy = { version = "0.18.1", default-features = false, features = [
     "bevy_scene",
     "bevy_winit",
     "bevy_window",
-    "wayland",           # for your KDE Wayland setup
     "ktx2",              # compressed textures
     "tonemapping_luts",  # fixes bright/pink PBR materials
     "zstd_rust",         # safe Rust implementation for zstd (no "zstd" feature)
