@@ -33,6 +33,8 @@
 use bevy::math::DVec3;
 use bevy::prelude::*;
 
+use crate::physics;
+
 // ---------------------------------------------------------------------------
 // Coordinate-system primitives
 //
@@ -70,8 +72,16 @@ pub struct LocalOrigin(pub DVec3);
 #[derive(Component)]
 pub struct SyncRender;
 
+/// Enables render interpolation for a physics-driven entity.
+#[derive(Component, Default, Clone, Copy, Debug)]
+pub struct RenderInterpolation {
+    pub previous: Transform,
+    pub current: Transform,
+    pub initialized: bool,
+}
+
 // ---------------------------------------------------------------------------
-// The system
+// The systems
 // ---------------------------------------------------------------------------
 
 /// Copies simulation positions into Bevy [`Transform`]s for rendering.
@@ -98,9 +108,59 @@ pub fn sync_render_transforms(
         // This keeps the value being cast small, preserving precision.
         let relative = sim_pos.0 - local_origin.0;
 
+        // Debug assertion to ensure relative position is reasonable
+        debug_assert!(relative.length() < 1e6, "Relative position too large, LocalOrigin may need updating");
+
         // Step 2: THIS IS THE ONLY .as_vec3() IN THE ENTIRE CODEBASE.
         // All other f64→f32 position casts are forbidden. If you are adding
         // one elsewhere, you are breaking the coordinate-system contract.
         transform.translation = relative.as_vec3();
+    }
+}
+
+/// Captures the latest physics transform snapshot so rendering can interpolate.
+///
+/// This runs after Rapier has synced physics transforms to Bevy, but before the
+/// final interpolated render transform is written.
+pub fn cache_physics_transforms(
+    mut query: Query<(&Transform, &mut RenderInterpolation)>,
+) {
+    for (transform, mut interp) in &mut query {
+        if interp.initialized {
+            interp.previous = interp.current;
+        } else {
+            interp.previous = *transform;
+            interp.initialized = true;
+        }
+        interp.current = *transform;
+    }
+}
+
+/// Interpolates the visible transform between the last two physics ticks.
+///
+/// This reduces render jitter when physics runs at a fixed rate and the
+/// render frame rate does not exactly match it.
+pub fn interpolate_render_transforms(
+    time: Res<Time>,
+    mut query: Query<(&mut Transform, &RenderInterpolation)>,
+) {
+    let alpha = ((time.elapsed_seconds_f64() % physics::FIXED_TIMESTEP)
+        / physics::FIXED_TIMESTEP) as f32;
+
+    for (mut transform, interp) in &mut query {
+        if interp.initialized {
+            transform.translation = interp
+                .previous
+                .translation
+                .lerp(interp.current.translation, alpha);
+            transform.rotation = interp
+                .previous
+                .rotation
+                .slerp(interp.current.rotation, alpha);
+            transform.scale = interp
+                .previous
+                .scale
+                .lerp(interp.current.scale, alpha);
+        }
     }
 }

@@ -4,10 +4,11 @@ use bevy_rapier3d::prelude::*;
 
 mod physics;
 mod rendering;
+mod sdk;
 
 // SimPosition and SyncRender are defined in render_sync but unused until Phase 1
 // (no entities carry SimPosition + SyncRender yet). Import only what's needed.
-use rendering::render_sync::{LocalOrigin, WorldOrigin};
+use rendering::render_sync::{LocalOrigin, RenderInterpolation, WorldOrigin};
 
 // ---------------------------------------------------------------------------
 // Marker components
@@ -89,17 +90,17 @@ fn setup(
         ..default()
     });
 
-    // Ground — Fixed rigid body so Rapier treats it as immovable.
+    // Ground placeholder — a much larger planet-scale sphere.
     commands.spawn((
-        Mesh3d(meshes.add(Cuboid::new(200.0, 1.0, 200.0))),
+        Mesh3d(meshes.add(Sphere::new(10_000.0).mesh().ico(10).unwrap())),
         MeshMaterial3d(materials.add(StandardMaterial {
             base_color: Color::srgb(0.55, 0.55, 0.55),
             perceptual_roughness: 0.9,
             ..default()
         })),
-        Transform::from_xyz(0.0, -0.5, 0.0),
+        Transform::from_xyz(0.0, -10_000.0, 0.0),
         RigidBody::Fixed,
-        Collider::cuboid(100.0, 0.5, 100.0),
+        Collider::ball(10_000.0),
     ));
 
     // Ball — dropped from height to validate gravity + restitution.
@@ -112,13 +113,7 @@ fn setup(
         })),
         Transform::from_xyz(0.0, 50.0, 0.0),
         DebugBall,
-        RigidBody::Dynamic,
-        Collider::ball(0.5),
-        GravityScale(1.0),
-        Restitution::coefficient(0.7),
-        Friction::coefficient(0.7),
-        Velocity::default(),
-        Sleeping::disabled(),
+        RenderInterpolation::default(),
     ));
 
     eprintln!("Phase 0 scene spawned — ball at Y = 50.0 m");
@@ -148,18 +143,20 @@ fn main() {
         // Fixed timestep: 50 Hz as specified in design.md.
         // "Fixed tick rate: 50 Hz (0.02s). Never dynamic per-frame."
         .insert_resource(TimestepMode::Fixed {
-            dt: 1.0 / 50.0,
+            dt: physics::FIXED_TIMESTEP as f32,
             substeps: 1,
         })
         .add_systems(Startup, setup)
         .add_systems(Update, camera_orbit)
         // log_ball_position runs after Rapier writes its final transforms for the tick.
         .add_systems(PostUpdate, log_ball_position)
+        .add_systems(PostUpdate, rendering::render_sync::cache_physics_transforms.after(log_ball_position))
+        .add_systems(PostUpdate, rendering::render_sync::interpolate_render_transforms.after(rendering::render_sync::cache_physics_transforms))
         // render_sync runs last in PostUpdate, after all simulation writes,
         // before Bevy's transform propagation and render extract.
         .add_systems(
             PostUpdate,
-            rendering::render_sync::sync_render_transforms.after(log_ball_position),
+            rendering::render_sync::sync_render_transforms.after(rendering::render_sync::interpolate_render_transforms),
         )
         .run();
 }
