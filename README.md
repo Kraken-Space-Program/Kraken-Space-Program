@@ -88,24 +88,58 @@ The open-source mod ecosystem isn't a reference — it's a foundation.
 
 ## Current status
 
-🚧 **Early development — Phase 0 mostly complete.**
+🚧 **Early development — Phase 0 complete, Phase 1 in progress.**
 
-The foundation is real. The architecture is established. A ball falls under gravity and bounces. It's not much to look at yet, but everything underneath it is built to last.
+**A rocket flies, and lands.** You can throttle it up, steer it, stage it, and watch the spent booster fall
+away behind you. It is five placeholder cylinders and a flat grey plane, but the parts are defined
+in Lua, the physics runs at an honest fixed 50 Hz, and the origin shifts under you at 10 km without
+so much as a flicker.
 
-**Phase 0 — Foundation** *(mostly done)*
+Gravity falls off with altitude, the air thins out above you, parts shield each other from the
+airstream, and joints break when you overload them. A ballistic re-entry from 12 km peaks at
+around 300 m/s and *slows down* on the way in. It lands on its legs.
+
+**It reaches space.** Straight up on full throttle, the test stack drops its first stage at
+14 km on flameout and coasts through 70,000 m at t+140 s with propellant to spare — through
+seven origin shifts that leave no mark on the trace at all.
+
+**Controls:** `Shift`/`Ctrl` throttle · `Z`/`X` full/cut · `WASD` steer · `Q`/`E` roll · `T` SAS · `Space` stage · `0` reset · right-drag orbit · scroll zoom
+
+On a Mac trackpad, "right-drag" is usually Control-click-drag — and `Control` is throttle-down, so
+orbiting that way quietly closes the throttle. Use a two-finger click-drag or a mouse.
+
+SAS is on from the pad. It kills rotation rather than holding a heading: point the rocket where you
+want it and let go, and it stays there.
+
+`0` puts a fresh stack back on the pad — wreckage, spent stages and all thrown away. There is no
+save system yet, so it is that or restart the game between attempts.
+
+**Diagnosing a change:** `KRAKEN_TRACE=2` logs one line per physics tick, and
+`KRAKEN_PILOT=ascent|hop|ballistic|idle` flies a scripted profile so a launch or a landing is
+reproducible without a human at the keyboard. See EXECUTION.md.
+
+**Phase 0 — Foundation** *(done)*
 - [x] Bevy project skeleton — window opens, nothing crashes
 - [x] Coordinate system types — `SimPosition` (f64), `WorldOrigin`, `LocalOrigin`, `render_sync.rs` as the single f64→f32 conversion point
-- [x] Rapier physics integration — rigid bodies, fixed 50 Hz timestep, gravity
+- [x] Rapier physics integration — rigid bodies, genuinely fixed 50 Hz timestep, gravity
+- [x] Physics interpolation — rendering interpolates between ticks, smooth at any refresh rate
+- [x] wgpu pipeline confirmed — Metal on Apple Silicon, Vulkan on Linux, no platform-specific code
 - [x] Module directory structure matching the full architecture in `DESIGN.md`
-- [x] CI pipeline — `cargo fmt`, `cargo clippy`, `cargo test` on every push
-- [ ] Physics interpolation — fixed timestep running, render interpolation between ticks pending
-- [ ] wgpu pipeline smoke test
+- [x] CI pipeline — `fmt`, `clippy -D warnings`, `test`, on Linux **and** macOS
 
-**Phase 1 — A Rocket Goes Up** *(not started)*
+**Phase 1 — A Rocket Goes Up** *(in progress)*
+- [x] Parts loaded from Lua definitions, assembled into a jointed vessel
+- [x] `PendingForces`, engine thrust, propellant consumption from the rocket equation
+- [x] Staging — decouple, split into two vessels, fly on
+- [x] Krakensbane origin shifting
+- [x] Camera tracking and a placeholder HUD
+- [x] Aerodynamic drag, with parts shielding each other from the airstream
+- [x] Point-mass gravity
+- [x] Crash detection
+- [x] Structural failure (joints that break under load)
+- [x] **Exit criterion met:** the stack reaches space — 70 km, staging on the way up
 
-Part entities, joints, thrust, drag, staging, Krakensbane origin shifting, camera tracking, crash detection. A hardcoded multi-stage rocket launches, reaches space, and stages. No Lua yet.
-
-The full roadmap lives in [`DESIGN.md`](DESIGN.md). Current tasks and decisions live in [`EXECUTION.md`](EXECUTION.md).
+The full roadmap lives in [`DESIGN.md`](DESIGN.md). Current tasks and decisions live in [`EXECUTION.md`](EXECUTION.md). Corners cut, and why, live in [`CHECKLIST.md`](CHECKLIST.md).
 
 ---
 

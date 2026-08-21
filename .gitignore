@@ -22,3 +22,6 @@ target
 
 # Other Folders:
 .vscode/
+# Agent tooling scratch files
+registered_agents.json
+task_agent_mapping.json

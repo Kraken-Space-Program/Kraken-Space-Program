@@ -42,7 +42,7 @@ CI runs all three on every push. A red CI blocks merging. If it passes locally i
 
 1. Look at the **Currently Active** section of `EXECUTION.md`. Pick something unassigned.
 2. Note somewhere visible (GitHub issue, discussion) that you're working on it, so two people don't do the same thing.
-3. If nothing in Currently Active fits your skills, look at **Phase 1 Prep** in the same document.
+3. If nothing in Currently Active fits your skills, the **Known Tech Debt** table in `CHECKLIST.md` is the standing list of things somebody consciously left undone, each with the phase it should be fixed by. Picking one off it is always welcome.
 4. If you want to work on something that isn't listed anywhere, open a discussion first. Architecture decisions made in surprise PRs tend to get reverted.
 
 ---
@@ -61,7 +61,9 @@ These aren't guidelines — CI enforces them or reviewers will.
 
 **No Rapier imports outside `src/physics/`.** Everything else talks to physics through components and events. If you need something from Rapier in another module, the right answer is an event or a component, not an import.
 
-**No direct Bevy `info!`/`debug!` calls until logging is sorted.** Use `eprintln!` for now. This is logged as tech debt and will be fixed in Phase 1. See `CHECKLIST.md` item #1.
+**Log through `tracing`, never `println!`/`eprintln!`.** `info!`, `warn!` and `error!` from the Bevy prelude, which the `bevy_log` feature wires to a subscriber that honours `RUST_LOG`. (This rule used to say the opposite — `eprintln!` until logging was sorted. Logging is sorted.)
+
+**Do not claim a physics change works because it looked right.** Fly it: `KRAKEN_TRACE=all` for one line per tick, `KRAKEN_PILOT=ascent|hop|ballistic|idle` to fly a profile without a human at the keyboard. Two of Phase 1's worst bugs were invisible at half-second logging resolution and settled before anyone could see them — a rocket bouncing at 9.5 m/s on the pad, SAS spinning a motionless vessel to a steady 0.68 rad/s. See the "Diagnosing flight" section of `EXECUTION.md`.
 
 ---
 

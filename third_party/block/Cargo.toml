@@ -1,0 +1,20 @@
+# Vendored copy of block 0.1.6, patched. See README.md for why this exists and when to
+# delete it. Kept at the upstream version so `[patch.crates-io]` can stand in for it.
+[package]
+name = "block"
+version = "0.1.6"
+authors = ["Steven Sheldon"]
+edition = "2015"
+license = "MIT"
+description = "Rust interface for Apple's C language extension of blocks. Vendored and patched — see README.md."
+repository = "http://github.com/SSheldon/rust-block"
+publish = false
+
+# Registry dependencies build with `--cap-lints allow`; path dependencies do not, so
+# vendoring this crate would otherwise add 46 warnings of its own — all `missing_abi`, from
+# 2016-era `extern fn` declarations that predate the explicit-ABI style. The source is kept
+# as upstream wrote it apart from the one documented fix, so the lint is capped here rather
+# than by editing 46 lines. Future-incompatibility reports are unaffected: cargo prints
+# those regardless of lint level, which is how we would hear about the next one.
+[lints.rust]
+missing_abi = "allow"

@@ -1,0 +1,20 @@
+# Kraken Space Program — cargo configuration
+#
+# DESIGN.md, "Determinism":
+#
+#   "CI builds and release builds must never enable flags that break IEEE 754
+#    compliance. Fast-math (-ffast-math equivalents, or LLVM's reassociate /
+#    unsafe-fp-math) is permanently banned. This is enforced in .cargo/config.toml.
+#    Do not override it per-crate without a reason documented in the PR."
+#
+# Deterministic physics is what makes multiplayer and save/load consistency
+# possible. Fast-math lets the optimiser reassociate floating point operations,
+# which changes rounding — two machines running the same build would then diverge.
+#
+# This file is the enforcement point. Do not add fast-math flags here, and do not
+# add them to RUSTFLAGS in CI. If a PR needs to relax this, it must say why.
+
+[build]
+# Intentionally empty of any -Cllvm-args / -ffast-math style flags.
+# Kept as an explicit anchor so the ban has somewhere to live and be reviewed.
+rustflags = []
