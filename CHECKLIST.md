@@ -14,4 +14,3 @@
 | 2 | `log_ball_position` runs every `PostUpdate` frame and prints to stderr — will be extremely noisy at 50Hz once the game is doing real things. Should be removed or gated behind a debug flag before Phase 1. | `src/main.rs` | 0 | 1 |
 | 3 | `LocalOrigin` is never updated — it stays at `DVec3::ZERO` forever. Fine for Phase 0 (scene is tiny) but Krakensbane won't work until this is driven by the active vessel position. | `src/rendering/render_sync.rs` | 0 | 1 |
 | 4 | No entities carry `SimPosition` + `SyncRender` yet — `sync_render_transforms` runs every frame and matches nothing. The render sync pipeline exists but is not connected to anything. | `src/rendering/render_sync.rs` | 0 | 1 |
-| 5 | Physics interpolation not implemented — `TimestepMode::Fixed` is set at 50 Hz but rendering does not interpolate between ticks. Fast-moving objects will visually stutter. | `src/main.rs` | 0 | 1 |
