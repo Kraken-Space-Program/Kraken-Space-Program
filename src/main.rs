@@ -113,6 +113,7 @@ fn setup(
         Transform::from_xyz(0.0, 50.0, 0.0),
         DebugBall,
         RigidBody::Dynamic,
+        TransformInterpolation::default(),
         Collider::ball(0.5),
         GravityScale(1.0),
         Restitution::coefficient(0.7),
@@ -147,8 +148,10 @@ fn main() {
         .init_resource::<LocalOrigin>()
         // Fixed timestep: 50 Hz as specified in design.md.
         // "Fixed tick rate: 50 Hz (0.02s). Never dynamic per-frame."
-        .insert_resource(TimestepMode::Fixed {
+        // Interpolated: fixed 50 Hz steps, render poses lerped between ticks.
+        .insert_resource(TimestepMode::Interpolated {
             dt: 1.0 / 50.0,
+            time_scale: 1.0,
             substeps: 1,
         })
         .add_systems(Startup, setup)

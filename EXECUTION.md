@@ -65,7 +65,7 @@ These are the things being worked on right now. If you're picking up a task, not
 
 ### (Phase 0 backlog)
 - [ ] wgpu pipeline confirmation — Bevy's default renderer is working, custom wgpu node can be registered (smoke test only, no custom shaders yet)
-- [ ] Rapier fixed timestep confirmed — physics running at 50 Hz, rendering interpolating between ticks
+- [x] Rapier fixed timestep confirmed — physics running at 50 Hz, rendering interpolating between ticks (`TimestepMode::Interpolated` + `TransformInterpolation` on dynamic bodies)
 - [x] Module directory structure matches DESIGN.md — even if most files are just `mod.rs` stubs
 
 ---
